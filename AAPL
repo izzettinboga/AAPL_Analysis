@@ -1,0 +1,114 @@
+
+#Import
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+
+# Set the stock symbol and download the data
+symbol = "AAPL"
+stock_data = yf.download(symbol, start="1999-06-01", end="2023-05-31", progress=False)
+
+# Line Plot of Closing Prices
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, stock_data['Close'])
+plt.xlabel('Date')
+plt.ylabel('Closing Price')
+plt.title('AAPL Stock - Closing Prices')
+plt.show()
+
+# Candlestick Chart
+import mplfinance as mpf
+mpf.plot(stock_data, type='candle', volume=True, style='yahoo')
+
+# Volume Distribution
+plt.figure(figsize=(12, 6))
+plt.hist(stock_data['Volume'], bins=50)
+plt.xlabel('Volume')
+plt.ylabel('Frequency')
+plt.title('AAPL Stock - Volume Distribution')
+plt.show()
+
+# Daily Returns
+returns = stock_data['Close'].pct_change()
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, returns)
+plt.xlabel('Date')
+plt.ylabel('Daily Returns')
+plt.title('AAPL Stock - Daily Returns')
+plt.show()
+
+# Rolling Mean
+rolling_mean = stock_data['Close'].rolling(window=30).mean()
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, stock_data['Close'], label='Closing Prices')
+plt.plot(stock_data.index, rolling_mean, label='30-day Rolling Mean')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.title('AAPL Stock - Rolling Mean')
+plt.legend()
+plt.show()
+
+# Rolling Standard Deviation
+rolling_std = stock_data['Close'].rolling(window=30).std()
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, rolling_std)
+plt.xlabel('Date')
+plt.ylabel('Standard Deviation')
+plt.title('AAPL Stock - Rolling Standard Deviation')
+plt.show()
+
+# Moving Average Convergence Divergence (MACD)
+exp12 = stock_data['Close'].ewm(span=12, adjust=False).mean()
+exp26 = stock_data['Close'].ewm(span=26, adjust=False).mean()
+macd = exp12 - exp26
+signal = macd.ewm(span=9, adjust=False).mean()
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, macd, label='MACD Line')
+plt.plot(stock_data.index, signal, label='Signal Line')
+plt.xlabel('Date')
+plt.ylabel('MACD')
+plt.title('AAPL Stock - MACD')
+plt.legend()
+plt.show()
+
+# Relative Strength Index (RSI)
+delta = stock_data['Close'].diff()
+gain = delta.copy()
+loss = delta.copy()
+gain[gain < 0] = 0
+loss[loss > 0] = 0
+average_gain = gain.rolling(window=14).mean()
+average_loss = abs(loss.rolling(window=14).mean())
+rs = average_gain / average_loss
+rsi = 100 - (100 / (1 + rs))
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, rsi)
+plt.xlabel('Date')
+plt.ylabel('RSI')
+plt.title('AAPL Stock - RSI')
+plt.show()
+
+# Bollinger Bands
+rolling_mean = stock_data['Close'].rolling(window=20).mean()
+rolling_std = stock_data['Close'].rolling(window=20).std()
+upper_band = rolling_mean + (2 * rolling_std)
+lower_band = rolling_mean - (2 * rolling_std)
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, stock_data['Close'], label='Closing Prices')
+plt.plot(stock_data.index, rolling_mean, label='20-day Rolling Mean')
+plt.fill_between(stock_data.index, lower_band, upper_band, alpha=0.2, color='gray')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.title('AAPL Stock - Bollinger Bands')
+plt.legend()
+plt.show()
+
+# Accumulation/Distribution Line
+adl = (2 * stock_data['Close'] - stock_data['Low'] - stock_data['High']) / (stock_data['High'] - stock_data['Low']) * stock_data['Volume']
+plt.figure(figsize=(12, 6))
+plt.plot(stock_data.index, adl)
+plt.xlabel('Date')
+plt.ylabel('Accumulation/Distribution Line')
+plt.title('AAPL Stock - Accumulation/Distribution Line')
+plt.show()
